@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import random
+import matplotlib.pyplot as plt
 
 #region Algoritmo Genetico
 def get_fitness_perceptron(weights, data):
@@ -128,6 +129,28 @@ def genetic_algorithm(data, pop_size=100, max_gens=1000, k=2, alpha=0.5, sigma=0
   # retornar a melhor solução e seu fitness
   return best_solution, best_fitness
 
+def plot_evolution(weights_list, fitness_list, hold_outs, epoch_qtd, learning_rate):
+    plt.figure(figsize=(10, 6))
+
+    for i in range(len(weights_list)):
+        weights = weights_list[i]
+        fitness = fitness_list[i]
+        hold_out = hold_outs[i]
+
+        plt.scatter(fitness, weights[0], label=f'Hold-out {hold_out} - Peso 1')
+        plt.scatter(fitness, weights[1], label=f'Hold-out {hold_out} - Peso 2')
+
+    plt.title(f'Pesos do Perceptron / Fitness. Epochs: {epoch_qtd}, Learning rate: {learning_rate}')
+    plt.xlabel('Fitness')
+    plt.ylabel('Pesos')
+    plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.savefig(f"output/epoch_{epoch_qtd}_lr_{learning_rate}.png")
+    
+    plt.show()
+
 def main():
   generation_qtd = 100
 
@@ -175,6 +198,13 @@ def main():
       test_accuracy_10 = get_fitness_perceptron(best_weights_10, test_data_10)
       test_accuracy_30 = get_fitness_perceptron(best_weights_30, test_data_30)
       test_accuracy_50 = get_fitness_perceptron(best_weights_50, test_data_50)
+
+      # plotar o perceptron
+      weights_list = [best_weights_10, best_weights_30, best_weights_50]
+      fitness_list = [best_fitness_10, best_fitness_30, best_fitness_50]
+      holdout_list = ['10_90', '30_70', '50_50']
+
+      plot_evolution(weights_list, fitness_list, holdout_list, epoch_qtd, learning_rate)
 
       # Imprimir os resultados
       print(f"Epochs: {epoch_qtd}, Learning rate: {learning_rate}, Generation qtd: {generation_qtd}")
